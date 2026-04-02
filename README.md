@@ -54,6 +54,8 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 
 ## GPT-OSS 20B
 
+### MXFP4 Quantization
+
 **Model**: gpt-oss-20b MXFP4 MoE (GGUF)
 
 | Metric | Value |
@@ -70,12 +72,31 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 
 ---
 
+### F16 Quantization
+
+**Model**: gpt-oss-20b F16 (GGUF)
+
+| Metric | Value |
+|--------|-------|
+| Model Size | 12.83 GiB |
+| Parameters | 20.91 B |
+| Quantization | F16 |
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 2667.83 ± 4.94 |
+| pp8192 (prompt processing) | 1785.77 ± 4.88 |
+| tg128 (tokens generated) | 84.96 ± 0.75 |
+
+---
+
 ## Summary
 
 | Model | Size | Params | PP2048 t/s | PP8192 t/s | TG128 t/s |
 |-------|------|--------|------------|------------|-----------|
 | Qwen3.5-35B-A3B Q4_K_Medium | 20.09 GiB | 34.66 B | 2995.23 | 2608.68 | 84.87 |
 | GPT-OSS 20B MXFP4 MoE | 11.27 GiB | 20.91 B | 2703.86 | 1800.39 | 109.68 |
+| GPT-OSS 20B F16 | 12.83 GiB | 20.91 B | 2667.83 | 1785.77 | 84.96 |
 
 ---
 
