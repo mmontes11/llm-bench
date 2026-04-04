@@ -6,6 +6,7 @@ LLM benchmarks using llama.cpp on Kubernetes.
 
 -   [Qwen3.5-35B-A3B](#qwen35-35b-a3b)
 -   [GPT-OSS 20B](#gpt-oss-20b)
+-   [Gemma4 MXFP4 MoE](#gemma4-mxfp4-moe)
 
 ### Kubernetes Cluster
 
@@ -23,7 +24,7 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 -   VMM: Enabled
 
 **Benchmark Parameters**:
--   **Inference Engine**: llama.cpp build 312d870a8 (8496)
+-   **Inference Engine**: llama.cpp build d00685831 (8660)
 -   **CUDA Backend**: Enabled
 -   **Flash Attention**: On
 -   **Batch Size**: 2048
@@ -90,6 +91,25 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 
 ---
 
+## Gemma4 MXFP4 MoE
+
+**Model**: gemma4 MXFP4 MoE (GGUF)
+**Parameters**: 26B
+
+| Metric | Value |
+|--------|-------|
+| Model Size | 15.52 GiB |
+| Parameters | 25.23 B |
+| Quantization | MXFP4 |
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 2841.20 ± 286.16 |
+| pp8192 (prompt processing) | 2563.79 ± 1.95 |
+| tg128 (tokens generated) | 77.33 ± 0.33 |
+
+---
+
 ## Summary
 
 | Model | Size | Params | PP2048 t/s | PP8192 t/s | TG128 t/s |
@@ -97,6 +117,7 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 | Qwen3.5-35B-A3B Q4_K_Medium | 20.09 GiB | 34.66 B | 2995.23 | 2608.68 | 84.87 |
 | GPT-OSS 20B MXFP4 MoE | 11.27 GiB | 20.91 B | 2703.86 | 1800.39 | 109.68 |
 | GPT-OSS 20B F16 | 12.83 GiB | 20.91 B | 2667.83 | 1785.77 | 84.96 |
+| Gemma4 MXFP4 MoE | 15.52 GiB | 26 B | 2841.20 | 2563.79 | 77.33 |
 
 ---
 
