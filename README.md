@@ -138,9 +138,3 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 | GPT-OSS 20B MXFP4 MoE | 11.27 GiB | 20.91 B | 2703.86 | 1800.39 | 109.68 |
 | GPT-OSS 20B F16 | 12.83 GiB | 20.91 B | 2667.83 | 1785.77 | 84.96 |
 | Gemma4 MXFP4 MoE | 15.52 GiB | 26 B | 2841.20 | 2563.79 | 77.33 |
-
----
-
-### Topics
-
-[kubernetes](/topics/kubernetes "Topic: kubernetes") [benchmark](/topics/benchmark "Topic: benchmark") [llm](/topics/llm "Topic: llm") [llamacpp](/topics/llamacpp "Topic: llamacpp") [gpu](/topics/gpu "Topic: gpu") [cuda](/topics/cuda "Topic: cuda") [qwen](/topics/qwen "Topic: qwen") [gpt-oss](/topics/gpt-oss "Topic: gpt-oss") [moe](/topics/moe "Topic: moe") [quantization](/topics/quantization "Topic: quantization")
