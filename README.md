@@ -4,6 +4,8 @@ LLM benchmarks using llama.cpp on Kubernetes.
 
 ### Benchmarks
 
+-   [Qwen3.6-27B](#qwen36-27b)
+-   [Qwen3.6-35B-A3B](#qwen36-35b-a3b)
 -   [Qwen3.5-27B](#qwen35-27b)
 -   [Qwen3.5-35B-A3B](#qwen35-35b-a3b)
 -   [GPT-OSS 20B](#gpt-oss-20b)
@@ -25,7 +27,7 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 -   VMM: Enabled
 
 **Benchmark Parameters**:
--   **Inference Engine**: llama.cpp build d00685831 (8660)
+-   **Inference Engine**: llama.cpp build b76429a69 (8895)
 -   **CUDA Backend**: Enabled
 -   **Flash Attention**: On
 -   **Batch Size**: 2048
@@ -33,6 +35,60 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 -   **Threads**: 1
 -   **Prompt Lengths**: 2048, 8192 tokens
 -   **Tokens Generated**: 128
+
+---
+
+## Qwen3.6-27B
+
+**Model**: Qwen3.6-27B Q4_K_Medium (GGUF)
+
+| Metric | Value |
+|--------|-------|
+| Model Size | 15.65 GiB |
+| Parameters | 26.90 B |
+| Quantization | Q4_K_Medium |
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 760.56 ± 4.58 |
+| pp8192 (prompt processing) | 679.26 ± 5.65 |
+| tg128 (tokens generated) | 18.31 ± 0.08 |
+
+---
+
+## Qwen3.6-35B-A3B
+
+### MXFP4 MoE Quantization
+
+**Model**: Qwen3.6-35B-A3B MXFP4 MoE (GGUF)
+
+| Metric | Value |
+|--------|-------|
+| Model Size | 20.21 GiB |
+| Parameters | 34.66 B |
+| Quantization | MXFP4 |
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 2382.11 ± 13.14 |
+| pp8192 (prompt processing) | 2112.82 ± 14.88 |
+| tg128 (tokens generated) | 85.29 ± 0.21 |
+
+### IQ4_NL Quantization (4.5 bpw)
+
+**Model**: Qwen3.6-35B-A3B IQ4_NL (GGUF)
+
+| Metric | Value |
+|--------|-------|
+| Model Size | 16.79 GiB |
+| Parameters | 34.66 B |
+| Quantization | IQ4_NL (4.5 bpw) |
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 2094.23 ± 10.83 |
+| pp8192 (prompt processing) | 1869.25 ± 15.36 |
+| tg128 (tokens generated) | 86.72 ± 0.05 |
 
 ---
 
@@ -133,6 +189,9 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 
 | Model | Size | Params | PP2048 t/s | PP8192 t/s | TG128 t/s |
 |-------|------|--------|------------|------------|-----------|
+| Qwen3.6-27B Q4_K_Medium | 15.65 GiB | 26.90 B | 760.56 | 679.26 | 18.31 |
+| Qwen3.6-35B-A3B MXFP4 MoE | 20.21 GiB | 34.66 B | 2382.11 | 2112.82 | 85.29 |
+| Qwen3.6-35B-A3B IQ4_NL | 16.79 GiB | 34.66 B | 2094.23 | 1869.25 | 86.72 |
 | Qwen3.5-27B Q4_K_Medium | 15.58 GiB | 26.90 B | 787.63 | 708.77 | 19.70 |
 | Qwen3.5-35B-A3B Q4_K_Medium | 20.09 GiB | 34.66 B | 2995.23 | 2608.68 | 84.87 |
 | GPT-OSS 20B MXFP4 MoE | 11.27 GiB | 20.91 B | 2703.86 | 1800.39 | 109.68 |
