@@ -119,6 +119,31 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 | pp8192 (prompt processing) | 1869.25 ± 15.36 |
 | tg128 (tokens generated) | 86.72 ± 0.05 |
 
+### MXFP4 MoE MTP Quantization
+
+**Model**: Qwen3.6-35B-A3B-MTP MXFP4 MoE (GGUF)
+**Build**: 1738129be (9426)
+
+| Metric | Value |
+|--------|-------|
+| Model Size | 20.65 GiB |
+| Parameters | 35.51 B |
+| Quantization | MXFP4 |
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 2531.76 ± 10.33 |
+| pp8192 (prompt processing) | 2233.87 ± 17.27 |
+| tg128 (tokens generated) | 95.93 ± 0.30 |
+
+### Comparison: Qwen3.6-35B-A3B vs MTP (MXFP4 MoE)
+
+| Test | Qwen3.6-35B-A3B MXFP4 MoE | Qwen3.6-35B-A3B-MTP MXFP4 MoE | Δ |
+|------|---------------------------|-------------------------------|---|
+| pp2048 | 2382.11 | 2531.76 | +6.3% |
+| pp8192 | 2112.82 | 2233.87 | +5.7% |
+| tg128 | 85.29 | 95.93 | +12.5% |
+
 ### IQ4_NL MTP Quantization (4.5 bpw)
 
 **Model**: Qwen3.6-35B-A3B-MTP IQ4_NL (GGUF)
@@ -246,6 +271,7 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 | Qwen3.6-27B Q4_K_Medium | 15.65 GiB | 26.90 B | 760.56 | 679.26 | 18.31 |
 | Qwen3.6-27B-MTP Q4_K_M | 15.92 GiB | 27.32 B | 768.37 | 689.17 | 18.57 |
 | Qwen3.6-35B-A3B MXFP4 MoE | 20.21 GiB | 34.66 B | 2382.11 | 2112.82 | 85.29 |
+| Qwen3.6-35B-A3B-MTP MXFP4 MoE | 20.65 GiB | 35.51 B | 2531.76 | 2233.87 | 95.93 |
 | Qwen3.6-35B-A3B IQ4_NL | 16.79 GiB | 34.66 B | 2094.23 | 1869.25 | 86.72 |
 | Qwen3.6-35B-A3B-MTP IQ4_NL | 17.25 GiB | 35.51 B | 2198.98 | 1942.82 | 95.86 |
 | Qwen3.5-27B Q4_K_Medium | 15.58 GiB | 26.90 B | 787.63 | 708.77 | 19.70 |
