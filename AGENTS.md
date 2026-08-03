@@ -11,25 +11,28 @@ run by swapping the StatefulSet from `--server` to the benchmark command.
 ## Reproducing (vLLM)
 
 Run from **inside the cluster, in the `ai` namespace**, with the target model Ready.
-Substitute the two model-dependent values from this table; everything else is fixed so
-runs stay comparable.
+Everything below is fixed so runs stay comparable.
 
-| model | `--served-model-name` / Service prefix | `--model` (tokenizer repo) |
-|-------|----------------------------------------|----------------------------|
-| nvidia | `nvidia-qwen-27b-nvfp4` | `nvidia/Qwen3.6-27B-NVFP4` |
-| unsloth | `unsloth-qwen36-27b-nvfp4` | `unsloth/Qwen3.6-27B-NVFP4` |
+| deployment (`--served-model-name`) | `--model` (tokenizer repo) |
+|------------------------------------|----------------------------|
+| `qwen-27b-nvfp4` | `nvidia/Qwen3.6-27B-NVFP4` |
+
+The deployment name carries no publisher prefix — only one NVFP4 checkpoint fits this
+card. `unsloth/Qwen3.6-27B-NVFP4` was evaluated and dropped: it leaves layers 56–63's
+MLPs at FP8 W8A8, costing **+1.39 GiB** of resident weights (20.16 vs 18.77 GiB
+language-model-only), which leaves no KV budget at all — negative even before CUDA
+graphs, and ~4k context at best with `--enforce-eager` plus 3-bit KV.
 
 ### Target endpoint
 
 KServe exposes each `LLMInferenceService` as a ClusterIP Service named
 `<served-model-name>-kserve-workload-svc`, listening on **port 8000**, **plain HTTP**
 (no TLS on the Service itself — the certs mounted at `/var/run/kserve/tls` front the
-gateway, not this port). For the models above:
+gateway, not this port):
 
-| model | base URL |
-|-------|----------|
-| nvidia | `http://nvidia-qwen-27b-nvfp4-kserve-workload-svc:8000` |
-| unsloth | `http://unsloth-qwen36-27b-nvfp4-kserve-workload-svc:8000` |
+```
+http://qwen-27b-nvfp4-kserve-workload-svc:8000
+```
 
 Because the harness runs in the `ai` namespace, the short Service name resolves
 directly — no port-forward, no `kubectl exec`, no FQDN needed. The fully qualified
@@ -52,7 +55,7 @@ uv tool install --python 3.12 'vllm==0.25.1' --with 'openai==2.45.0'
 ### 2. Confirm the target and record its context ceiling
 
 ```bash
-curl -s http://nvidia-qwen-27b-nvfp4-kserve-workload-svc:8000/v1/models | \
+curl -s http://qwen-27b-nvfp4-kserve-workload-svc:8000/v1/models | \
   python3 -c 'import sys,json;d=json.load(sys.stdin)["data"][0];print(d["id"],d["max_model_len"])'
 ```
 
@@ -78,10 +81,10 @@ for SHAPE in "1024 512 8 2" "2048 128 6 1" "8192 128 6 1"; do
   set -- $SHAPE
   vllm bench serve \
     --backend vllm \
-    --base-url http://nvidia-qwen-27b-nvfp4-kserve-workload-svc:8000 \
+    --base-url http://qwen-27b-nvfp4-kserve-workload-svc:8000 \
     --endpoint /v1/completions \
     --model nvidia/Qwen3.6-27B-NVFP4 \
-    --served-model-name nvidia-qwen-27b-nvfp4 \
+    --served-model-name qwen-27b-nvfp4 \
     --dataset-name random \
     --random-input-len "$1" \
     --random-output-len "$2" \
@@ -102,7 +105,7 @@ Expect roughly 8 minutes end to end at ~20 t/s: the `1024/512` shape dominates a
 These define the run as much as the client flags do.
 
 ```bash
-kubectl -n ai logs -l app.kubernetes.io/name=nvidia-qwen-27b-nvfp4 -c main | grep -E \
+kubectl -n ai logs -l app.kubernetes.io/name=qwen-27b-nvfp4 -c main | grep -E \
   "Model loading took|Available KV cache memory|GPU KV cache size|Maximum concurrency|NVFP4 GEMM|marlin|uncalibrated"
 ```
 
