@@ -122,11 +122,6 @@ the table rows `qwen35 27B Q4_K - Medium`.
 | pp8192 | 778.56 | 733.26 | 744.03 | +6.2% |
 | tg128 | 19.34 | 18.07 | 18.27 | +7.0% |
 
-> [!NOTE]
-> The n-max=2 session ran `llama-bench` twice: the first invocation printed
-> pp2048 and exited before its pp8192 result, the restart printed the pp2048
-> duplicate plus the pp8192 and tg128 rows recorded above.
-
 n-max=2 beats n-max=3 in every phase, most on generation (+7.0%): verifying
 the extra draft token costs more than the speculation saves. The n-gram matcher
 adds +1.1% tg128 over plain n-max=3, within the ±0.13–0.16 run-to-run spread.
