@@ -6,6 +6,7 @@ LLM benchmarks using llama.cpp and vLLM on Kubernetes.
 
 **llama.cpp**
 
+-   [Qwen3.8-27B](#qwen38-27b)
 -   [Qwen3.6-27B](#qwen36-27b)
 -   [Qwen3.6-27B MTP](#qwen36-27b-mtp)
 -   [Qwen3.6-35B-A3B](#qwen36-35b-a3b)
@@ -35,7 +36,7 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 -   VMM: Enabled
 
 **Benchmark Parameters (llama.cpp)**:
--   **Inference Engine**: llama.cpp build b76429a69 (8895) / 1738129be (9426) for MTP models
+-   **Inference Engine**: llama.cpp build b76429a69 (8895) / 1738129be (9426) / 6d0549831 (10499) for MTP models
 -   **Harness**: `llama-bench`
 -   **CUDA Backend**: Enabled
 -   **Flash Attention**: On
@@ -64,6 +65,71 @@ AI workloads and manifests (including llama.cpp) are managed in [k8s-ai](https:/
 ### Reproducing
 
 Instructions for running these benchmarks live in [AGENTS.md](AGENTS.md).
+
+---
+
+## Qwen3.8-27B
+
+**Model**: [unsloth/Qwen3.8-27B-GGUF](https://huggingface.co/unsloth/Qwen3.8-27B-GGUF), `Qwen3.8-27B-UD-Q4_K_XL.gguf`
+**Build**: 6d0549831 (10499)
+
+| Metric | Value |
+|--------|-------|
+| Model Size | 16.34 GiB |
+| Parameters | 27.32 B |
+| Quantization | Q4_K_XL (UD) |
+
+All three runs use MTP speculative decoding and differ only in draft depth and
+the n-gram matcher. llama.cpp identifies the GGUF as arch `qwen35` and labels
+the table rows `qwen35 27B Q4_K - Medium`.
+
+### MTP draft, n-max=2
+
+`spec-type=draft-mtp`, `spec-draft-n-max=2`
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 832.61 ± 5.50 |
+| pp8192 (prompt processing) | 778.56 ± 6.48 |
+| tg128 (tokens generated) | 19.34 ± 0.16 |
+
+### MTP draft, n-max=3
+
+`spec-type=draft-mtp`, `spec-draft-n-max=3`
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 795.97 ± 7.96 |
+| pp8192 (prompt processing) | 733.26 ± 14.16 |
+| tg128 (tokens generated) | 18.07 ± 0.13 |
+
+### MTP draft + ngram-mod, n-max=3
+
+`spec-type=draft-mtp,ngram-mod`, `spec-draft-n-max=3`,
+`spec-ngram-mod-n-match=24`, `spec-ngram-mod-n-min=48`, `spec-ngram-mod-n-max=64`
+
+| Test | t/s |
+|------|-----|
+| pp2048 (prompt processing) | 797.36 ± 10.00 |
+| pp8192 (prompt processing) | 744.03 ± 14.47 |
+| tg128 (tokens generated) | 18.27 ± 0.16 |
+
+### Comparison: speculative decoding configs
+
+| Test | MTP n-max=2 | MTP n-max=3 | MTP + ngram-mod | Δ (n-max=2 vs n-max=3) |
+|------|-------------|-------------|-----------------|------------------------|
+| pp2048 | 832.61 | 795.97 | 797.36 | +4.6% |
+| pp8192 | 778.56 | 733.26 | 744.03 | +6.2% |
+| tg128 | 19.34 | 18.07 | 18.27 | +7.0% |
+
+> [!NOTE]
+> The n-max=2 session ran `llama-bench` twice: the first invocation printed
+> pp2048 and exited before its pp8192 result, the restart printed the pp2048
+> duplicate plus the pp8192 and tg128 rows recorded above.
+
+n-max=2 beats n-max=3 in every phase, most on generation (+7.0%): verifying
+the extra draft token costs more than the speculation saves. The n-gram matcher
+adds +1.1% tg128 over plain n-max=3, within the ±0.13–0.16 run-to-run spread.
 
 ---
 
@@ -362,6 +428,9 @@ plus 0.44 GiB of CUDA graphs, leaving ~1 GiB for KV.
 
 | Model | Size | Params | PP2048 t/s | PP8192 t/s | TG128 t/s |
 |-------|------|--------|------------|------------|-----------|
+| Qwen3.8-27B Q4_K_XL, MTP n-max=2 | 16.34 GiB | 27.32 B | 832.61 | 778.56 | 19.34 |
+| Qwen3.8-27B Q4_K_XL, MTP n-max=3 | 16.34 GiB | 27.32 B | 795.97 | 733.26 | 18.07 |
+| Qwen3.8-27B Q4_K_XL, MTP + ngram-mod | 16.34 GiB | 27.32 B | 797.36 | 744.03 | 18.27 |
 | Qwen3.6-27B Q4_K_Medium | 15.65 GiB | 26.90 B | 760.56 | 679.26 | 18.31 |
 | Qwen3.6-27B-MTP Q4_K_M | 15.92 GiB | 27.32 B | 768.37 | 689.17 | 18.57 |
 | Qwen3.6-35B-A3B MXFP4 MoE | 20.21 GiB | 34.66 B | 2382.11 | 2112.82 | 85.29 |
